@@ -1,0 +1,17 @@
+name: "Release VERSION.txt"
+description: "GitHub Action to write a release's tag name to VERSION.txt and include it in the release."
+runs:
+  using: "composite"
+  steps:
+    - name: "Write VERSION.txt"
+      if: ${{ github.event_name == 'release' }}
+      run: |
+        echo "${{ github.event.release.tag_name }}" > VERSION.txt
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git add .
+        git commit -m "Release ${{ github.event.release.tag_name }}"
+        git push origin HEAD:${{ github.event.release.target_commitish }}
+        git tag --force ${{ github.event.release.tag_name }}
+        git push --force origin ${{ github.event.release.tag_name }}
+      shell: bash
